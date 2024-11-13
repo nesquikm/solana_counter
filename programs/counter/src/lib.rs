@@ -11,8 +11,10 @@ pub mod counter {
     // Instruction to initialize a new counter account
     pub fn initialize(ctx: Context<Initialize>) -> Result<()> {
         // Reference to the counter account from the Initialize struct
-        let counter = &ctx.accounts.counter;
+        let counter = &mut ctx.accounts.counter;
+        counter.bump = ctx.bumps.counter; // store bump seed in `Counter` account
         msg!("Counter account created! Current count: {}", counter.count);
+        msg!("Counter bump: {}", counter.bump);
         Ok(())
     }
 
@@ -39,8 +41,10 @@ pub struct Initialize<'info> {
     // The counter account being created and initialized in the instruction
     #[account(
         init,         // specifies we are creating this account
+        seeds = [b"counter"], // optional seeds for pda
+        bump,
         payer = user, // specifies account paying for the creation of the account
-        space = 8 + 8 // space allocated to the new account (8 byte discriminator + 8 byte for u64)
+        space = 8 + Counter::INIT_SPACE
     )]
     pub counter: Account<'info, Counter>, // specify account is 'Counter' type
     pub system_program: Program<'info, System>, // specify account must be System Program
@@ -49,12 +53,19 @@ pub struct Initialize<'info> {
 // Account required by the increment instruction
 #[derive(Accounts)]
 pub struct Increment<'info> {
-    #[account(mut)] // specify account is mutable because we are updating its data
+    // The address of the `Counter` account must be a PDA derived with the specified `seeds`
+    #[account(
+        mut,
+        seeds = [b"counter"], // optional seeds for pda
+        bump = counter.bump,  // bump seed for pda stored in `Counter` account
+    )]
     pub counter: Account<'info, Counter>, // specify account is 'Counter' type
 }
 
 // Define structure of `Counter` account
 #[account]
+#[derive(InitSpace)]
 pub struct Counter {
     pub count: u64, // define count value type as u64
+    pub bump: u8,   // 1 byte
 }
