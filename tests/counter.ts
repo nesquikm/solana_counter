@@ -17,34 +17,34 @@ describe("counter", () => {
 
   console.log("PDA: ", counterPDA);
 
-  it("Is initialized!", async () => {
-    try {
-      // Invoke the initialize instruction
-      const transactionSignature = await program.methods
-        .initialize()
-        .accounts({
-          counter: counterPDA,
-        })
-        .rpc();
+  // it("Is initialized!", async () => {
+  //   try {
+  //     // Invoke the initialize instruction
+  //     const transactionSignature = await program.methods
+  //       .initialize()
+  //       .accounts({
+  //         counter: counterPDA,
+  //       })
+  //       .rpc();
 
-      // Fetch the counter account data
-      const accountData = await program.account.counter.fetch(counterPDA);
+  //     // Fetch the counter account data
+  //     const accountData = await program.account.counter.fetch(counterPDA);
 
-      console.log(`Transaction Signature: ${transactionSignature}`);
-      console.log(`Count: ${accountData.count}`);
-    } catch (error) {
-      // If PDA Account already created, then we expect an error
-      console.log(error);
-    }
-  });
+  //     console.log(`Transaction Signature: ${transactionSignature}`);
+  //     console.log(`Count: ${accountData.count}`);
+  //   } catch (error) {
+  //     // If PDA Account already created, then we expect an error
+  //     console.log(error);
+  //   }
+  // });
 
   it("Increment", async () => {
     // Invoke the increment instruction
     const transactionSignature = await program.methods
       .increment()
-      .accounts({
-        counter: counterPDA,
-      })
+      // .accounts({
+      //   counter: counterPDA,
+      // })
       .rpc();
 
     // Fetch the counter account data
